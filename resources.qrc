@@ -2,5 +2,6 @@
     <qresource prefix="/new/prefix1">
         <file>add.png</file>
         <file>search.png</file>
+        <file>add_circle.svg</file>
     </qresource>
 </RCC>

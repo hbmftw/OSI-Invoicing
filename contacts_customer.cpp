@@ -29,7 +29,7 @@ Contacts_Customer::Contacts_Customer(DatabaseManager& dbManager, QWidget *parent
     ui->CustomerSearch_Field->setClearButtonEnabled(true);
     // Add magnifing glass icon to the left side of text box
     QAction *searchAction = new QAction(this);
-    searchAction->setIcon(QIcon(":/search.png"));// Path to search icon (Resources file)
+    searchAction->setIcon(QIcon(":/new/prefix1/search.png"));// Path to search icon (Resources file)
     ui->CustomerSearch_Field->addAction(searchAction, QLineEdit::LeadingPosition);
 
     // Populate the table with all clients on first open

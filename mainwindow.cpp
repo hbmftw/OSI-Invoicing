@@ -7,6 +7,8 @@
 #include "addPayment.h"
 #include "addclient.h"
 
+#include <QPushButton>
+#include <QList>
 #include <QMessageBox>
 #include <QMdiSubWindow>
 #include <QInputDialog>
@@ -34,6 +36,29 @@ MainWindow::MainWindow(DatabaseManager& dbManager, QWidget *parent)
     ui->mdiArea_main->setTabShape(QTabWidget::Rounded);
 
     connect(ui->mdiArea_main, &QMdiArea::subWindowActivated, this, &MainWindow::onSubWindowActivated);
+
+    //-----------Push Button Icons--------------
+    const QIcon addIcon(":/new/prefix1/add_circle.svg");
+    const QSize iconSize(16, 16);   // adjust to taste
+
+    const QList<QPushButton*> addButtons = {
+        ui->addCustomerButton,
+        ui->addInvoiceButton,
+        ui->addPaymentsButton,
+        ui->addProductsButton
+    };
+
+    for (QPushButton *btn : addButtons) {
+        btn->setIcon(addIcon);
+        btn->setIconSize(iconSize);
+        btn->setFlat(true);
+        btn->setCursor(Qt::PointingHandCursor);
+        btn->setStyleSheet(
+            "QPushButton { background: transparent; border: none; }"
+            "QPushButton:hover { background: rgba(0, 0, 0, 30); border-radius: 6px; }"
+            "QPushButton:pressed { background: rgba(0, 0, 0, 60); border-radius: 6px; }"
+            );
+    }
 
 }
 
@@ -90,22 +115,6 @@ void MainWindow::openReceivePaymentFlow() // Called in ReceivePayment_Button
 }
 
 void MainWindow::on_Customers_Button_clicked() {openOrActivateTab<Contacts_Customer>(); }
-/*{
-
-    // Allocate the Window on the Heap so it persists after this function
-    Contacts_Customer *contactWindow = new Contacts_Customer(m_dbManager, this);
-
-    // Add sub-Window inside MDI Area locked to its boundaries
-    QMdiSubWindow *subContactWindow = ui->mdiArea_main->addSubWindow(contactWindow);
-
-    // Deletes the memory automactically when the widow is closed
-    subContactWindow->setAttribute(Qt::WA_DeleteOnClose);
-
-    // Opens Window
-    subContactWindow->showMaximized();
-
-}*/
-
 
 void MainWindow::on_addCustomerButton_clicked()
 {
@@ -114,20 +123,6 @@ void MainWindow::on_addCustomerButton_clicked()
 }
 
 void MainWindow::on_Invoices_Button_clicked() { openOrActivateTab<Invoice_Window>(); }
-/*{
-    // Allocate the Window on the Heap so it presists after this function
-    Invoice_Window *invoiceWindow = new Invoice_Window(m_dbManager, this); // need to pass db manager: m_dbManager
-
-    // Add sub-window to MDI Area
-    // Locked to the boundaries of the MDI Area
-    QMdiSubWindow *subInvoiceWindow = ui->mdiArea_main->addSubWindow(invoiceWindow);
-
-    // Deletes the memory automatically when windw is closed
-    subInvoiceWindow->setAttribute(Qt::WA_DeleteOnClose);
-
-    // Opens Window
-    subInvoiceWindow->showMaximized();
-}*/
 
 void MainWindow::on_addInvoiceButton_clicked()
 {
