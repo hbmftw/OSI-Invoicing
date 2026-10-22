@@ -3,9 +3,15 @@
 
 #include "invoice_window.h"
 #include "contacts_customer.h"
+#include "payment_window.h"
+#include "products_item.h"
+#include "settings_window.h"
+#include "reports_window.h"
 #include "addInvoice.h"
 #include "addPayment.h"
 #include "addclient.h"
+#include "additem.h"
+
 
 #include <QPushButton>
 #include <QList>
@@ -17,6 +23,7 @@
 #include <QIcon>
 #include <QSize>
 
+
 MainWindow::MainWindow(DatabaseManager& dbManager, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -24,6 +31,9 @@ MainWindow::MainWindow(DatabaseManager& dbManager, QWidget *parent)
     , m_dbManager(dbManager) // Bind reference passed from main.cpp
 {
     ui->setupUi(this);
+
+    // Load OSI Icon
+    setWindowIcon(QIcon(":/new/prefix1/OSI.png"));
 
     // Enable tabbed view for MDIArea
     ui->mdiArea_main->setViewMode(QMdiArea::TabbedView);
@@ -45,7 +55,7 @@ MainWindow::MainWindow(DatabaseManager& dbManager, QWidget *parent)
         ui->addCustomerButton,
         ui->addInvoiceButton,
         ui->addPaymentsButton,
-        ui->addProductsButton
+        ui->addProductsButton,
     };
 
     for (QPushButton *btn : addButtons) {
@@ -53,7 +63,42 @@ MainWindow::MainWindow(DatabaseManager& dbManager, QWidget *parent)
         btn->setIconSize(iconSize);
         btn->setFlat(true);
         btn->setCursor(Qt::PointingHandCursor);
+        btn->setToolTip("ADD");
         btn->setStyleSheet(
+            "QPushButton { background: transparent; border: none; }"
+            "QPushButton:hover { background: rgba(0, 0, 0, 30); border-radius: 6px; }"
+            "QPushButton:pressed { background: rgba(0, 0, 0, 60); border-radius: 6px; }"
+            );
+    }
+
+    // Settings Button
+    const QIcon settingIcon(":/new/prefix1/settings.png");
+    const QSize sIconSize(30, 30);
+    const QList<QPushButton*> addSIcon = {ui->Settings_Button};
+    for (QPushButton *sbtn : addSIcon){
+        sbtn->setIcon(settingIcon);
+        sbtn->setIconSize(sIconSize);
+        sbtn->setFlat(false);
+        sbtn->setCursor(Qt::PointingHandCursor);
+        sbtn->setToolTip("SETTINGS");
+        sbtn->setStyleSheet(
+            "QPushButton { background: transparent; border: none; }"
+            "QPushButton:hover { background: rgba(0, 0, 0, 30); border-radius: 6px; }"
+            "QPushButton:pressed { background: rgba(0, 0, 0, 60); border-radius: 6px; }"
+            );
+    }
+
+    // About Button
+    const QIcon aboutIcon(":/new/prefix1/about.png");
+    const QSize aIconSize(30, 30);
+    const QList<QPushButton*> addAIcon = {ui->About_Button};
+    for (QPushButton *abtn : addAIcon){
+        abtn->setIcon(aboutIcon);
+        abtn->setIconSize(aIconSize);
+        abtn->setFlat(false);
+        abtn->setCursor(Qt::PointingHandCursor);
+        abtn->setToolTip("ABOUT");
+        abtn->setStyleSheet(
             "QPushButton { background: transparent; border: none; }"
             "QPushButton:hover { background: rgba(0, 0, 0, 30); border-radius: 6px; }"
             "QPushButton:pressed { background: rgba(0, 0, 0, 60); border-radius: 6px; }"
@@ -68,6 +113,7 @@ MainWindow::~MainWindow()
 
 }
 
+// Tab function
 template <typename T>
 void MainWindow::openOrActivateTab()
 {
@@ -87,6 +133,7 @@ void MainWindow::openOrActivateTab()
     sub->showMaximized();
 }
 
+// Refreshes windows that are locked to mdi area
 void MainWindow::onSubWindowActivated(QMdiSubWindow *sub)
 {
     if (!sub || !sub->widget()) {return; } // Null when the last tab closes
@@ -95,6 +142,10 @@ void MainWindow::onSubWindowActivated(QMdiSubWindow *sub)
     QMetaObject::invokeMethod(sub->widget(), "refresh", Qt::DirectConnection);
 }
 
+// Popup window for Receiving Payment
+/*
+ * This window will lead to addpayment window after user inserts valid invoice number
+ */
 void MainWindow::openReceivePaymentFlow() // Called in ReceivePayment_Button
 {
     bool ok = false;
@@ -114,16 +165,20 @@ void MainWindow::openReceivePaymentFlow() // Called in ReceivePayment_Button
 
 }
 
-void MainWindow::on_Customers_Button_clicked() {openOrActivateTab<Contacts_Customer>(); }
+// Reports
+void MainWindow::on_Reports_Button_clicked() {openOrActivateTab<Reports_Window>();}
 
+// Customer
+void MainWindow::on_Customers_Button_clicked() {openOrActivateTab<Contacts_Customer>(); }
 void MainWindow::on_addCustomerButton_clicked()
 {
-
+    AddClient dialog(m_dbManager, this);
+    dialog.exec();
 
 }
 
+// Invoices
 void MainWindow::on_Invoices_Button_clicked() { openOrActivateTab<Invoice_Window>(); }
-
 void MainWindow::on_addInvoiceButton_clicked()
 {
 
@@ -135,7 +190,8 @@ void MainWindow::on_addInvoiceButton_clicked()
 
 }
 
-
+// Payments
+void MainWindow::on_Payments_Button_clicked() { openOrActivateTab<Payment_Window>(); }
 void MainWindow::on_addPaymentsButton_clicked()
 {
 
@@ -143,11 +199,30 @@ void MainWindow::on_addPaymentsButton_clicked()
 
 }
 
+// Products
+void MainWindow::on_Products_Button_clicked() {openOrActivateTab<Products_Item>();}
 
 void MainWindow::on_addProductsButton_clicked()
 {
-
+    AddItem dialog(m_dbManager, 0, this);
+    dialog.exec();
 }
+
+
+// Settings Dialog
+void MainWindow::on_Settings_Button_clicked() {openOrActivateTab<Settings_Window>();}
+
+
+// About - Shows Qt information only for Portfolio
+// Production version will show app version and available updates
+void MainWindow::on_About_Button_clicked()
+{
+    // This pops up a native, professionally formatted window
+    // crediting Qt and explaining the LGPL license terms.
+    QMessageBox::aboutQt(this, "About Qt");
+}
+
+
 
 
 

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SalesTaxReport</class>
+ <widget class="QWidget" name="SalesTaxReport">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>560</width>
+    <height>460</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Sales Tax Report</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="filterLayout">
+     <item>
+      <widget class="QLabel" name="StartDate_Label">
+       <property name="text">
+        <string>From:</string>
+       </property>
+       <property name="buddy">
+        <cstring>StartDate_DateEdit</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDateEdit" name="StartDate_DateEdit">
+       <property name="displayFormat">
+        <string>yyyy-MM-dd</string>
+       </property>
+       <property name="calendarPopup">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="EndDate_Label">
+       <property name="text">
+        <string>To:</string>
+       </property>
+       <property name="buddy">
+        <cstring>EndDate_DateEdit</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDateEdit" name="EndDate_DateEdit">
+       <property name="displayFormat">
+        <string>yyyy-MM-dd</string>
+       </property>
+       <property name="calendarPopup">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="RunReport_PushButton">
+       <property name="text">
+        <string>Run Report</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="filterSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="Basis_Label">
+       <property name="text">
+        <string>Basis: --</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="TaxLines_TableWidget">
+     <column>
+      <property name="text">
+       <string>Tax</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Rate</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Taxable Sales</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Tax Owed</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item>
+    <layout class="QFormLayout" name="summaryLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="GrossSalesCaption_Label">
+       <property name="text">
+        <string>Gross Sales:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="GrossSales_Label">
+       <property name="text">
+        <string>$0.00</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="ExemptSalesCaption_Label">
+       <property name="text">
+        <string>Exempt Sales:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="ExemptSales_Label">
+       <property name="text">
+        <string>$0.00</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="TaxableSalesCaption_Label">
+       <property name="text">
+        <string>Taxable Sales:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="TaxableSales_Label">
+       <property name="text">
+        <string>$0.00</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="TotalTaxOwedCaption_Label">
+       <property name="text">
+        <string>Total Tax Owed:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLabel" name="TotalTaxOwed_Label">
+       <property name="text">
+        <string>$0.00</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QPushButton" name="Close_PushButton">
+     <property name="text">
+      <string>CLOSE</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

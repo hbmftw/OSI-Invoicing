@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ArSummary</class>
+ <widget class="QWidget" name="ArSummary">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>560</width>
+    <height>460</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>A/R Summary</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="topLayout">
+     <item>
+      <widget class="QPushButton" name="RunReport_PushButton">
+       <property name="text"><string>Refresh Report</string></property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="ReportTable_TableWidget">
+     <column>
+      <property name="text"><string>Invoice #</string></property>
+     </column>
+     <column>
+      <property name="text"><string>Client Name</string></property>
+     </column>
+     <column>
+      <property name="text"><string>Due Date</string></property>
+     </column>
+     <column>
+      <property name="text"><string>Open Balance</string></property>
+     </column>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

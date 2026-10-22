@@ -36,6 +36,16 @@ private slots:
 
     void onSubWindowActivated(QMdiSubWindow *sub);
 
+    void on_Settings_Button_clicked();
+
+    void on_Payments_Button_clicked();
+
+    void on_About_Button_clicked();
+
+    void on_Products_Button_clicked();
+
+    void on_Reports_Button_clicked();
+
 private:
 
     // Shared by both the Receive Payment button and the Received Payments

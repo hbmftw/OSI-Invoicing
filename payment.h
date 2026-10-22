@@ -12,4 +12,6 @@ struct Payment {
     QString notes;
 };
 
+
+
 #endif // PAYMENT_H

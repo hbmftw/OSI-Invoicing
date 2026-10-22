@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CompanyProfile</class>
+ <widget class="QWidget" name="CompanyProfile">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>450</width>
+    <height>500</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Company Profile</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::Shape::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="CompanyName_Label">
+        <property name="text">
+         <string>Company Name:</string>
+        </property>
+        <property name="buddy">
+         <cstring>CompanyName_LineEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="CompanyName_LineEdit"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="Address_Label">
+        <property name="text">
+         <string>Address:</string>
+        </property>
+        <property name="buddy">
+         <cstring>Address_LineEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="Address_LineEdit"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="City_Label">
+        <property name="text">
+         <string>City:</string>
+        </property>
+        <property name="buddy">
+         <cstring>City_LineEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="City_LineEdit"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="State_Label">
+        <property name="text">
+         <string>State:</string>
+        </property>
+        <property name="buddy">
+         <cstring>State_LineEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="State_LineEdit"/>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="Zip_Label">
+        <property name="text">
+         <string>Zip:</string>
+        </property>
+        <property name="buddy">
+         <cstring>Zip_LineEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="Zip_LineEdit"/>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="Phone_Label">
+        <property name="text">
+         <string>Phone:</string>
+        </property>
+        <property name="buddy">
+         <cstring>Phone_LineEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="Phone_LineEdit"/>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="Email_Label">
+        <property name="text">
+         <string>Email:</string>
+        </property>
+        <property name="buddy">
+         <cstring>Email_LineEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QLineEdit" name="Email_LineEdit"/>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="TaxIdEin_Label">
+        <property name="text">
+         <string>Tax ID / EIN:</string>
+        </property>
+        <property name="buddy">
+         <cstring>TaxIdEin_LineEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLineEdit" name="TaxIdEin_LineEdit"/>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="LateFees_Label">
+        <property name="text">
+         <string>Late Fee (%):</string>
+        </property>
+        <property name="buddy">
+         <cstring>LateFees_SpinBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QSpinBox" name="LateFees_SpinBox">
+        <property name="minimum">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QLabel" name="Accrual_Label">
+        <property name="text">
+         <string>Accounting Basis:</string>
+        </property>
+        <property name="buddy">
+         <cstring>Accrual_CheckBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1">
+       <widget class="QCheckBox" name="Accrual_CheckBox">
+        <property name="text">
+         <string>Accrual basis (unchecked = cash basis)</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frame_2">
+     <property name="frameShape">
+      <enum>QFrame::Shape::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="Edit_PushButton">
+        <property name="text">
+         <string>EDIT</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="Save_PushButton">
+        <property name="text">
+         <string>SAVE</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="Cancel_PushButton">
+        <property name="text">
+         <string>CANCEL</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="Close_PushButton">
+        <property name="text">
+         <string>CLOSE</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

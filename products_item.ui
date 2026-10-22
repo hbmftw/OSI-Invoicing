@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Products_Item</class>
+ <widget class="QWidget" name="Products_Item">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>577</width>
+    <height>483</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Products &amp; Items</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QFrame" name="TopFrame">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text"><string>SEARCH</string></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="ItemSearch_Field">
+        <property name="minimumSize"><size><width>300</width><height>0</height></size></property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="NewItem_Button">
+        <property name="text"><string>New Item</string></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="itemsTableWidget">
+     <column>
+      <property name="text"><string>Name</string></property>
+     </column>
+     <column>
+      <property name="text"><string>Description</string></property>
+     </column>
+     <column>
+      <property name="text"><string>Price</string></property>
+     </column>
+     <column>
+      <property name="text"><string>Taxable</string></property>
+     </column>
+     <column>
+      <property name="text"><string/></property>
+     </column>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+</ui>

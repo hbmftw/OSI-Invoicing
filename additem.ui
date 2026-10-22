@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AddItem</class>
+ <widget class="QDialog" name="AddItemDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>280</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Add / Edit Item</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QFrame" name="frame">
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="Name_Label">
+        <property name="text"><string>Item Name:</string></property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="Name_LineEdit"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="Desc_Label">
+        <property name="text"><string>Description:</string></property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="Description_LineEdit"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="Price_Label">
+        <property name="text"><string>Price ($):</string></property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QDoubleSpinBox" name="Price_SpinBox">
+        <property name="maximum"><double>999999.99</double></property>
+        <property name="decimals"><number>2</number></property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="Taxable_Label">
+        <property name="text"><string>Taxable:</string></property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="Taxable_CheckBox">
+        <property name="text"><string>Item is taxable</string></property>
+        <property name="checked"><bool>true</bool></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="Cancel_PushButton">
+       <property name="text"><string>CANCEL</string></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="Save_PushButton">
+       <property name="text"><string>SAVE</string></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+</ui>

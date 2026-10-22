@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>OSI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -20,7 +20,7 @@
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>35</height>
+        <height>40</height>
        </size>
       </property>
       <property name="frameShape">
@@ -66,6 +66,44 @@
          </property>
         </spacer>
        </item>
+       <item>
+        <widget class="QPushButton" name="Settings_Button">
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="About_Button">
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
@@ -92,7 +130,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>90</y>
+           <y>130</y>
            <width>21</width>
            <height>32</height>
           </rect>
@@ -105,7 +143,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>120</y>
+           <y>160</y>
            <width>21</width>
            <height>32</height>
           </rect>
@@ -118,7 +156,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>150</y>
+           <y>190</y>
            <width>21</width>
            <height>32</height>
           </rect>
@@ -138,8 +176,8 @@
         <widget class="QPushButton" name="Customers_Button">
          <property name="geometry">
           <rect>
-           <x>0</x>
-           <y>60</y>
+           <x>10</x>
+           <y>100</y>
            <width>81</width>
            <height>32</height>
           </rect>
@@ -151,8 +189,8 @@
         <widget class="QPushButton" name="Invoices_Button">
          <property name="geometry">
           <rect>
-           <x>0</x>
-           <y>90</y>
+           <x>10</x>
+           <y>130</y>
            <width>81</width>
            <height>32</height>
           </rect>
@@ -164,8 +202,8 @@
         <widget class="QPushButton" name="Payments_Button">
          <property name="geometry">
           <rect>
-           <x>0</x>
-           <y>120</y>
+           <x>10</x>
+           <y>160</y>
            <width>81</width>
            <height>32</height>
           </rect>
@@ -177,8 +215,8 @@
         <widget class="QPushButton" name="Products_Button">
          <property name="geometry">
           <rect>
-           <x>0</x>
-           <y>150</y>
+           <x>10</x>
+           <y>190</y>
            <width>81</width>
            <height>32</height>
           </rect>
@@ -190,8 +228,8 @@
         <widget class="QPushButton" name="Dashboard_Button">
          <property name="geometry">
           <rect>
-           <x>0</x>
-           <y>0</y>
+           <x>10</x>
+           <y>10</y>
            <width>100</width>
            <height>32</height>
           </rect>
@@ -204,7 +242,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>60</y>
+           <y>100</y>
            <width>21</width>
            <height>32</height>
           </rect>
@@ -222,8 +260,8 @@
         <widget class="QPushButton" name="Reports_Button">
          <property name="geometry">
           <rect>
-           <x>0</x>
-           <y>200</y>
+           <x>10</x>
+           <y>50</y>
            <width>100</width>
            <height>32</height>
           </rect>

@@ -33,6 +33,25 @@ qt_add_executable(OSI-NewMainWindow
     customercard.h customercard.cpp customercard.ui
     contacts_customer.h contacts_customer.cpp contacts_customer.ui
     addclient.h addclient.cpp addclient.ui
+    payment_window.h payment_window.cpp payment_window.ui
+    DAO_Services.h DAO_Services.cpp
+    additem.h additem.cpp additem.ui
+    products_item.h products_item.cpp products_item.ui
+    item.h
+    DAO_Company.h DAO_Company.cpp
+    companyprofile.h companyprofile.cpp companyprofile.ui
+    DAO_SalesTaxReport.h DAO_SalesTaxReport.cpp
+    salestaxreport.h salestaxreport.cpp salestaxreport.ui
+    taxsettings.h taxsettings.cpp taxsettings.ui
+    settings_window.h settings_window.cpp settings_window.ui
+    reports_window.h reports_window.cpp reports_window.ui
+    salesbyitem.h salesbyitem.cpp salesbyitem.ui
+    DAO_Reports.h DAO_Reports.cpp
+    salesbycustomer.h salesbycustomer.cpp salesbycustomer.ui
+    arsummary.h arsummary.cpp arsummary.ui
+
+
+
 
 )
 

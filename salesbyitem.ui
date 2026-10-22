@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SalesByItem</class>
+ <widget class="QWidget" name="SalesByItem">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>560</width>
+    <height>460</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Sales by Item</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="filterLayout">
+     <item>
+      <widget class="QLabel" name="StartDate_Label">
+       <property name="text"><string>From:</string></property>
+       <property name="buddy"><cstring>StartDate_DateEdit</cstring></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDateEdit" name="StartDate_DateEdit">
+       <property name="displayFormat"><string>yyyy-MM-dd</string></property>
+       <property name="calendarPopup"><bool>true</bool></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="EndDate_Label">
+       <property name="text"><string>To:</string></property>
+       <property name="buddy"><cstring>EndDate_DateEdit</cstring></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDateEdit" name="EndDate_DateEdit">
+       <property name="displayFormat"><string>yyyy-MM-dd</string></property>
+       <property name="calendarPopup"><bool>true</bool></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="RunReport_PushButton">
+       <property name="text"><string>Run Report</string></property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="ReportTable_TableWidget">
+     <column>
+      <property name="text"><string>Item / Description</string></property>
+     </column>
+     <column>
+      <property name="text"><string>Quantity Sold</string></property>
+     </column>
+     <column>
+      <property name="text"><string>Total Amount</string></property>
+     </column>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
