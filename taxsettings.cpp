@@ -97,15 +97,3 @@ void TaxSettings::on_AddRate_PushButton_clicked()
     refreshTable();
 }
 
-void TaxSettings::on_Close_PushButton_clicked()
-{
-    // Embedded in a QMdiSubWindow (see MainWindow::on_actionTax_Settings_triggered).
-    // close() on just this widget hides/destroys the widget itself but
-    // leaves the QMdiSubWindow behind as an empty frame in the MDI area --
-    // close the wrapper instead when there is one.
-    if (QWidget *container = parentWidget()) {
-        container->close();
-    } else {
-        close();
-    }
-}

@@ -93,13 +93,6 @@
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="QPushButton" name="Close_PushButton">
-     <property name="text">
-      <string>CLOSE</string>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <resources/>

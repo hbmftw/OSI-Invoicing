@@ -118,14 +118,6 @@ void Contacts_Customer::on_NewCustomer_Button_clicked()
     }
 }
 
-
-// CSV Import
-void Contacts_Customer::on_CsvImport_Button_clicked()
-{
-
-}
-
-
 // Customer Search Field
 void Contacts_Customer::on_CustomerSearch_Field_returnPressed()
 {

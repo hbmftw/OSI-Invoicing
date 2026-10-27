@@ -68,6 +68,12 @@
        <property name="orientation">
         <enum>Qt::Orientation::Horizontal</enum>
        </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
       </spacer>
      </item>
      <item>
@@ -162,13 +168,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QPushButton" name="Close_PushButton">
-     <property name="text">
-      <string>CLOSE</string>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

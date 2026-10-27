@@ -27,8 +27,6 @@ public slots:
 private slots:
     void on_NewCustomer_Button_clicked();
 
-    void on_CsvImport_Button_clicked();
-
     void on_CustomerSearch_Field_returnPressed();
 
     void on_CustomerSearch_Field_textChanged(const QString &arg1);

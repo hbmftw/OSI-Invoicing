@@ -222,7 +222,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Products</string>
+          <string>Items</string>
          </property>
         </widget>
         <widget class="QPushButton" name="Dashboard_Button">

@@ -111,16 +111,3 @@ void CompanyProfile::on_Save_PushButton_clicked()
         QMessageBox::critical(this, "Error", "Failed to save company profile to database.");
     }
 }
-
-void CompanyProfile::on_Close_PushButton_clicked()
-{
-    // Embedded in a QMdiSubWindow (see MainWindow::on_actionCompany_Profile_triggered).
-    // close() on just this widget hides/destroys the widget itself but
-    // leaves the QMdiSubWindow behind as an empty frame in the MDI area --
-    // close the wrapper instead when there is one.
-    if (QWidget *container = parentWidget()) {
-        container->close();
-    } else {
-        close();
-    }
-}

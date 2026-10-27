@@ -63,16 +63,3 @@ void SalesTaxReport::runReport()
         ui->TaxLines_TableWidget->setItem(row, 3, new QTableWidgetItem(formatCents(line.taxOwedCents)));
     }
 }
-
-void SalesTaxReport::on_Close_PushButton_clicked()
-{
-    // Embedded in a QMdiSubWindow (see MainWindow::on_actionTax_Summary_triggered).
-    // close() on just this widget hides/destroys the widget itself but
-    // leaves the QMdiSubWindow behind as an empty frame in the MDI area --
-    // close the wrapper instead when there is one.
-    if (QWidget *container = parentWidget()) {
-        container->close();
-    } else {
-        close();
-    }
-}

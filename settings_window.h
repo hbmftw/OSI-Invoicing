@@ -23,6 +23,8 @@ private slots:
     void on_CompanyProfile_Button_clicked();
     void on_TaxSettings_Button_clicked();
 
+    void on_CVSImport_Button_clicked();
+
 private:
     Ui::Settings_Window *ui;
     DatabaseManager& m_dbManager;

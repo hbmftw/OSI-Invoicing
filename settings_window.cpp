@@ -47,3 +47,8 @@ void Settings_Window::on_TaxSettings_Button_clicked()
 {
     ui->settingsStackedWidget->setCurrentWidget(m_taxSettingsWidget);
 }
+void Settings_Window::on_CVSImport_Button_clicked()
+{
+
+}
+

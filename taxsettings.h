@@ -20,7 +20,6 @@ public:
 
 private slots:
     void on_AddRate_PushButton_clicked();
-    void on_Close_PushButton_clicked();
 
 private:
     void refreshTable();

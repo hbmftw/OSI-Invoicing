@@ -20,7 +20,6 @@ public:
 
 private slots:
     void on_RunReport_PushButton_clicked();
-    void on_Close_PushButton_clicked();
 
 private:
     void runReport();

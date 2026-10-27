@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>577</width>
+    <width>580</width>
     <height>483</height>
    </rect>
   </property>
@@ -70,19 +70,6 @@
          </size>
         </property>
        </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="CsvImport_Button">
-        <property name="maximumSize">
-         <size>
-          <width>300</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>CSV IMPORT</string>
-        </property>
-       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="NewCustomer_Button">

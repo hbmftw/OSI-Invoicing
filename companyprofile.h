@@ -23,7 +23,7 @@ private slots:
     void on_Edit_PushButton_clicked();
     void on_Save_PushButton_clicked();
     void on_Cancel_PushButton_clicked();
-    void on_Close_PushButton_clicked();
+
 
 private:
     void loadCompany();
