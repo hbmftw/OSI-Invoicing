@@ -49,6 +49,102 @@ QVector<Item> DAO_Services::searchServices(const QString& searchTerm) const {
     return results;
 }
 
+int DAO_Services::countServices(const QString& searchTerm) const {
+    QSqlDatabase db = m_dbManager.database();
+    if (!db.isOpen()) {
+        qCritical() << "DAO_Services::countServices - Database connection is not open!";
+        return 0;
+    }
+
+    QSqlQuery query(db);
+    query.prepare(
+        "SELECT COUNT(*) FROM services "
+        "WHERE (service_name LIKE :term1 OR service_description LIKE :term2) "
+        "  AND is_active = 1;"
+        );
+    const QString pattern = "%" + searchTerm.trimmed() + "%";
+    query.bindValue(":term1", pattern);
+    query.bindValue(":term2", pattern);
+
+    if (!query.exec() || !query.next()) {
+        qCritical() << "DAO_Services::countServices - Error:" << query.lastError().text();
+        return 0;
+    }
+    return query.value(0).toInt();
+}
+
+QVector<Item> DAO_Services::searchServicesPage(const QString& searchTerm, int limit, int offset) const {
+    QVector<Item> results;
+
+    QSqlDatabase db = m_dbManager.database();
+    if (!db.isOpen()) {
+        qCritical() << "DAO_Services::searchServicesPage - Database connection is not open!";
+        return results;
+    }
+
+    QSqlQuery query(db);
+    query.prepare(
+        "SELECT service_id, service_name, service_description, service_price, taxable, is_active "
+        "FROM services "
+        "WHERE (service_name LIKE :term1 OR service_description LIKE :term2) "
+        "  AND is_active = 1 "
+        "ORDER BY service_name ASC, service_id ASC "
+        "LIMIT :limit OFFSET :offset;"
+        );
+    const QString pattern = "%" + searchTerm.trimmed() + "%";
+    query.bindValue(":term1", pattern);
+    query.bindValue(":term2", pattern);
+    query.bindValue(":limit", limit);
+    query.bindValue(":offset", offset);
+
+    if (!query.exec()) {
+        qCritical() << "DAO_Services::searchServicesPage - Error:" << query.lastError().text();
+        return results;
+    }
+
+    while (query.next()) {
+        Item item;
+        item.id = query.value("service_id").toInt();
+        item.name = query.value("service_name").toString();
+        item.description = query.value("service_description").toString();
+        item.priceCents = query.value("service_price").toInt();
+        item.taxable = query.value("taxable").toBool();
+        item.isActive = query.value("is_active").toBool();
+        results.append(item);
+    }
+    return results;
+}
+
+QVector<Item> DAO_Services::getAllServices() const {
+    QVector<Item> results;
+
+    QSqlDatabase db = m_dbManager.database();
+    if (!db.isOpen()) {
+        qCritical() << "DAO_Services::getAllServices - Database connection is not open!";
+        return results;
+    }
+
+    QSqlQuery query(db);
+    if (!query.exec("SELECT service_id, service_name, service_description, service_price, taxable, is_active "
+                    "FROM services ORDER BY service_name ASC;")) {
+        qCritical() << "DAO_Services::getAllServices - Error executing query:" << query.lastError().text();
+        return results;
+    }
+
+    while (query.next()) {
+        Item item;
+        item.id = query.value("service_id").toInt();
+        item.name = query.value("service_name").toString();
+        item.description = query.value("service_description").toString();
+        item.priceCents = query.value("service_price").toInt();
+        item.taxable = query.value("taxable").toBool();
+        item.isActive = query.value("is_active").toBool();
+        results.append(item);
+    }
+
+    return results;
+}
+
 bool DAO_Services::insertService(const Item& service) {
     QSqlDatabase db = m_dbManager.database();
     if (!db.isOpen()) return false;

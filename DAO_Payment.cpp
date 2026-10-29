@@ -140,6 +140,94 @@ QVector<PaymentListItem> DAO_Payment::searchPayments(const QString& filterText, 
     return results;
 }
 
+namespace {
+
+QString paymentPageFromWhere(bool withMethod) {
+    QString sql =
+        "FROM payments p "
+        "JOIN invoices i ON p.invoice_id = i.invoice_id "
+        "LEFT JOIN clients c ON i.client_id = c.client_id "
+        "WHERE (i.invoice_number LIKE :f1 "
+        "   OR COALESCE(NULLIF(c.business_name, ''), c.first_name || ' ' || c.last_name) LIKE :f2 "
+        "   OR p.notes LIKE :f3) ";
+    if (withMethod) {
+        sql += "AND p.method = :method ";
+    }
+    return sql;
+}
+
+} // namespace
+
+int DAO_Payment::countPayments(const QString& filterText, const QString& methodFilter) const {
+    QSqlDatabase db = m_dbManager.database();
+    if (!db.isOpen()) return 0;
+
+    const bool withMethod = !methodFilter.isEmpty() && methodFilter != "All";
+
+    QSqlQuery query(db);
+    query.prepare("SELECT COUNT(*) " + paymentPageFromWhere(withMethod) + ";");
+    const QString pattern = "%" + filterText + "%";
+    query.bindValue(":f1", pattern);
+    query.bindValue(":f2", pattern);
+    query.bindValue(":f3", pattern);
+    if (withMethod) {
+        query.bindValue(":method", methodFilter);
+    }
+
+    if (!query.exec() || !query.next()) {
+        qCritical() << "DAO_Payment::countPayments - Error:" << query.lastError().text();
+        return 0;
+    }
+    return query.value(0).toInt();
+}
+
+QVector<PaymentListItem> DAO_Payment::searchPaymentsPage(const QString& filterText, const QString& methodFilter,
+                                                         int limit, int offset) const {
+    QVector<PaymentListItem> results;
+    QSqlDatabase db = m_dbManager.database();
+    if (!db.isOpen()) return results;
+
+    const bool withMethod = !methodFilter.isEmpty() && methodFilter != "All";
+
+    QSqlQuery query(db);
+    query.prepare(
+        "SELECT p.payment_id, p.invoice_id, i.invoice_number, "
+        "       COALESCE(NULLIF(c.business_name, ''), c.first_name || ' ' || c.last_name) AS client_name, "
+        "       p.payment_date, p.amount, p.method, p.notes " +
+        paymentPageFromWhere(withMethod) +
+        "ORDER BY p.payment_date DESC, p.payment_id DESC "
+        "LIMIT :limit OFFSET :offset;"
+        );
+    const QString pattern = "%" + filterText + "%";
+    query.bindValue(":f1", pattern);
+    query.bindValue(":f2", pattern);
+    query.bindValue(":f3", pattern);
+    if (withMethod) {
+        query.bindValue(":method", methodFilter);
+    }
+    query.bindValue(":limit", limit);
+    query.bindValue(":offset", offset);
+
+    if (!query.exec()) {
+        qCritical() << "DAO_Payment::searchPaymentsPage - Error:" << query.lastError().text();
+        return results;
+    }
+
+    while (query.next()) {
+        PaymentListItem item;
+        item.id = query.value("payment_id").toInt();
+        item.invoiceId = query.value("invoice_id").toInt();
+        item.invoiceNumber = query.value("invoice_number").toString();
+        item.clientDisplayName = query.value("client_name").toString();
+        item.paymentDate = query.value("payment_date").toString();
+        item.amountCents = query.value("amount").toInt();
+        item.method = query.value("method").toString();
+        item.notes = query.value("notes").toString();
+        results.append(item);
+    }
+    return results;
+}
+
 bool DAO_Payment::deletePayment(int paymentId) {
     QSqlDatabase db = m_dbManager.database(); //[cite: 1]
     if (!db.isOpen()) return false; //[cite: 1]

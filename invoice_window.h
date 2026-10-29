@@ -11,6 +11,7 @@
 
 // Forward Declaration
 class DatabaseManager;
+class PageBar;
 
 
 namespace Ui {
@@ -54,6 +55,7 @@ private:
 
     Ui::Invoice_Window *ui;
     DatabaseManager& m_dbManager; // Store reference to manager
+    PageBar* m_pageBar{nullptr};  // "Rows per page" + Prev/Next bar under the table
 };
 
 #endif // INVOICE_WINDOW_H

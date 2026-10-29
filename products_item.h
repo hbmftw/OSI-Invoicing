@@ -6,6 +6,7 @@
 #include "item.h"
 
 class DatabaseManager;
+class PageBar;
 
 namespace Ui {
 class Products_Item;
@@ -30,8 +31,12 @@ private:
     void populateItemsTable(const QVector<Item> &items);
     void openEditItemDialog(int itemId);
 
+    // Re-queries the current page for the current search text (keeps the page)
+    void reload();
+
     Ui::Products_Item *ui;
     DatabaseManager& m_dbManager;
+    PageBar* m_pageBar{nullptr};  // "Rows per page" + Prev/Next bar under the table
 };
 
 #endif // PRODUCTS_ITEM_H

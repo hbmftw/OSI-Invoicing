@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSV Prep</title>
+<style>
+:root{color-scheme:light dark;--bg:#eceff2;--panel:#fff;--ink:#1b2430;--mute:#677385;--line:#d5dbe2;--acc:#0b6b5c;--acc-ink:#fff;--fill:#fff1c2;--chip:#e3f2ee;--head:#f5f7f9}
+@media (prefers-color-scheme:dark){:root{--bg:#14181d;--panel:#1c2229;--ink:#e6eaef;--mute:#8e9aaa;--line:#303943;--acc:#3fb59f;--acc-ink:#0c1512;--fill:#4a3f12;--chip:#1e3a34;--head:#232b33}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column}
+header{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+h1{font-size:16px;margin:0 8px 0 0;font-weight:700}
+button,select,input{font:inherit;color:inherit}
+button{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 11px;cursor:pointer}
+button:hover{border-color:var(--acc)}
+button.p{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+button:disabled{opacity:.45;cursor:default}
+:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+label{display:inline-flex;align-items:center;gap:6px;color:var(--mute)}
+.sp{flex:1}
+#drop{margin:auto;max-width:460px;text-align:center;padding:48px 32px;border:2px dashed var(--line);border-radius:10px;background:var(--panel)}
+#drop.over{border-color:var(--acc)}
+#drop p{color:var(--mute);margin:8px 0 18px}
+#app{display:none;flex:1;min-height:0;flex-direction:column}
+#wrap{flex:1;overflow:auto;margin:12px 16px 0;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:separate;border-spacing:0;min-width:100%}
+th,td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:0;min-width:150px;max-width:320px;vertical-align:top}
+thead th,thead td{position:sticky;background:var(--head);z-index:2}
+thead tr:first-child>*{top:0}
+thead tr:nth-child(2)>*{top:var(--h1,34px);z-index:2}
+th input{width:100%;border:0;background:transparent;padding:7px 9px;font-weight:700}
+th input:focus{background:var(--panel)}
+td.rn{min-width:44px;max-width:44px;text-align:right;padding:5px 6px;color:var(--mute);background:var(--head);position:sticky;left:0;z-index:1}
+thead .rn{z-index:3}
+td.ctl{padding:6px 8px;font-size:12px;color:var(--mute);font-weight:400}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}
+.chip{padding:2px 8px;font-size:12px;border-radius:99px}
+.chip.s{background:var(--chip);border-color:var(--acc);color:var(--ink);font-weight:600}
+td.c{padding:5px 9px;white-space:pre-wrap;word-break:break-word;min-height:28px;font-variant-numeric:tabular-nums}
+td.c:focus{outline:2px solid var(--acc);outline-offset:-2px}
+td.f{background:var(--fill)}
+footer{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:10px 16px;color:var(--mute)}
+select{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:3px 6px;max-width:100%}
+input[type=range]{accent-color:var(--acc);width:110px}
+[hidden]{display:none!important}
+dialog{border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);padding:20px 22px;max-width:640px;width:calc(100% - 32px)}
+dialog::backdrop{background:#0008}
+.mrow{display:flex;gap:10px;align-items:center;margin:10px 0}
+.g{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px 10px;align-items:center;margin:14px 0}
+.g select,#mout{width:100%;border:1px solid var(--line);border-radius:6px;padding:4px 6px;background:var(--panel)}
+.w{display:flex;flex-direction:column;gap:6px}
+.w label{display:flex;gap:10px;justify-content:space-between}
+.w input[type=range]{flex:1;width:auto}
+.w b{width:2.4em;text-align:right;color:var(--ink)}
+#mres{min-height:1.4em;margin:10px 0 0}
+.mrow input[type=text],.mrow input[type=number]{border:1px solid var(--line);border-radius:6px;padding:4px 6px;background:var(--panel);min-width:0}
+td.d{outline:2px solid #c0392b;outline-offset:-2px}
+#views{display:inline-flex;gap:4px}
+</style>
+</head>
+<body>
+<header>
+  <h1>CSV Prep</h1>
+  <span id="views"><button id="vpay" class="p">Payments</button><button id="vinv" disabled>Invoices</button></span>
+  <button id="open">Open CSV…</button>
+  <button id="undo" disabled>Undo</button>
+  <button id="mbtn" disabled>Match invoices…</button>
+  <button id="auto" class="p" disabled>Apply suggested fills</button>
+  <label>Suggestion threshold <input id="th" type="range" min="30" max="95" value="60"><span id="thv">60%</span></label>
+  <span class="sp"></span>
+  <label>Delimiter <select id="dl"><option value=",">Comma</option><option value=";">Semicolon</option><option value="&#9;">Tab</option></select></label>
+  <label><input id="bom" type="checkbox"> UTF-8 BOM</label>
+  <button id="save" class="p" disabled>Download CSV</button>
+  <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv" hidden>
+</header>
+
+<div id="drop">
+  <strong>Drop a CSV file here</strong>
+  <p>The first row is used as headers. Everything stays on your computer.</p>
+  <button class="p" id="open2">Choose a file</button>
+</div>
+
+<div id="app">
+  <div id="wrap"><table id="tbl"></table></div>
+  <footer><span id="stat"></span><span>Yellow cells were filled automatically. Click any cell or header to edit it. New invoice numbers are linked: changing one changes the same number in the other file.</span></footer>
+</div>
+
+<dialog id="mt">
+  <h2 style="margin:0 0 6px;font-size:16px">Match payments to invoices</h2>
+  <p style="margin:0;color:var(--mute)">Each payment gets the invoice number of its best-scoring invoice. The amount must match (within 1%); name and date raise or lower the score. When an invoice number is blank, a new unique number is created and written to both files.</p>
+  <div class="mrow"><button id="mpick" class="p">Choose invoices CSV…</button><span id="minfo"></span></div>
+  <input id="ifile" type="file" accept=".csv,.tsv,.txt,text/csv" hidden>
+  <div id="mmap" hidden>
+    <div class="g">
+      <span></span><b>Payments columns</b><b>Invoices columns</b>
+      <span>Name</span><select id="mpn"></select><select id="min"></select>
+      <span>Date</span><select id="mpd"></select><select id="mid"></select>
+      <span>Amount</span><select id="mpa"></select><select id="mia"></select>
+      <span>Invoice number</span><input id="mout" value="Invoice Number" aria-label="Name of the new column in payments"><select id="miv"></select>
+    </div>
+    <div class="w">
+      <label>Amount weight<input type="range" id="mwa" min="0" max="100" value="45" data-v><b>45</b></label>
+      <label>Name weight<input type="range" id="mwn" min="0" max="100" value="35" data-v><b>35</b></label>
+      <label>Date weight<input type="range" id="mwd" min="0" max="100" value="20" data-v><b>20</b></label>
+      <label>Minimum score<input type="range" id="mth" min="30" max="100" value="70" data-v><b>70</b></label>
+      <label><span><input type="checkbox" id="mmulti"> One invoice can match several payments (partial payments)</span></label>
+      <label><span><input type="checkbox" id="mgen" checked> Create a new unique number when the invoice number is blank (filled in both files)</span></label>
+      <label><span><input type="checkbox" id="mleft"> Also number blank rows that found no match (each gets its own new number)</span></label>
+    </div>
+    <div class="mrow" id="mgrow"><label>Prefix <input type="text" id="mgp" size="8"></label><label>Start at <input type="number" id="mgs" min="0" style="width:90px"></label><label>Digits <input type="number" id="mgw" min="1" max="12" style="width:64px"></label><span id="mgex" style="color:var(--mute)"></span></div>
+  </div>
+  <p id="mres" role="status"></p>
+  <div class="mrow"><span class="sp"></span><button id="mclose">Close</button><button id="mrun" class="p" disabled>Add invoice numbers</button></div>
+</dialog>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const blank=v=>v==null||String(v).trim()==='';
+let H=[],R=[],F=new Set(),C=new Map(),hist=[],pre=null,pushed=false,LIMIT=1000;
+/* two tables: S.pay (payments, the file opened first) and S.inv (invoices). H,R,F,C always point at the table in view.
+   G holds links between auto-numbered cells: {pc,ic,j,ps} = payments column, invoices column, invoice row (-1 none), payment rows */
+let S={pay:null,inv:null},view='pay',G=[],GP=new Map(),GI=new Map();
+const cp=d=>d&&{H:[...d.H],R:d.R.map(r=>r.slice()),F:new Set(d.F),C:new Map(d.C),d:d.d,name:d.name};
+const normD=d=>d===','||d===';'||d==='\t'?d:',';
+function store(){const t=S[view];if(t){t.H=H;t.R=R;t.F=F;t.C=C}}
+function use(v){view=v;const t=S[v];H=t.H;R=t.R;F=t.F;C=t.C;$('#dl').value=t.d}
+function idx(){GP=new Map();GI=new Map();G.forEach(g=>{g.ps.forEach(i=>GP.set(i+','+g.pc,g));if(g.j>=0)GI.set(g.j+','+g.ic,g)})}
+function tabs(){$('#vpay').classList.toggle('p',view==='pay');$('#vinv').classList.toggle('p',view==='inv');
+  $('#vinv').disabled=!S.inv;$('#vpay').title=S.pay.name;$('#vinv').title=S.inv?S.inv.name:'Load an invoices file with Match invoices…'}
+function sw(v){if(v===view||!S[v])return;store();use(v);pre=null;render();tabs()}
+
+/* ---------- parsing ---------- */
+function detect(t){const l=t.split(/\r?\n/)[0]||'';let best=',',bc=-1;
+  for(const d of [',',';','\t','|']){let c=0,q=false;for(const ch of l){if(ch=='"')q=!q;else if(!q&&ch==d)c++}if(c>bc){bc=c;best=d}}return best}
+function parse(t,d){
+  if(t.charCodeAt(0)===0xFEFF)t=t.slice(1);
+  const out=[];let row=[],f='',q=false;
+  for(let i=0;i<t.length;i++){const ch=t[i];
+    if(q){if(ch=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=ch}
+    else if(ch=='"'&&f==='')q=true;
+    else if(ch===d){row.push(f);f=''}
+    else if(ch=='\n'||ch=='\r'){if(ch=='\r'&&t[i+1]=='\n')i++;row.push(f);f='';out.push(row);row=[]}
+    else f+=ch}
+  if(f!==''||row.length){row.push(f);out.push(row)}
+  return out}
+function readTable(text){
+  const d=detect(text);let rows=parse(text,d);
+  while(rows.length&&rows[rows.length-1].every(blank))rows.pop();
+  if(!rows.length){alert('That file looks empty.');return null}
+  const w=Math.max(...rows.map(r=>r.length));
+  rows=rows.map(r=>{r=r.slice();while(r.length<w)r.push('');return r});
+  return{d,H:rows[0].map((h,i)=>blank(h)?'Column '+(i+1):h),R:rows.slice(1)}}
+function load(text,name){
+  const t=readTable(text);if(!t)return;
+  S={pay:{H:t.H,R:t.R,F:new Set(),C:new Map(),d:normD(t.d),name:name.replace(/\.[^.]+$/,'')},inv:null};
+  G=[];idx();hist=[];pre=null;view='pay';use('pay');
+  $('#minfo').textContent='';$('#mmap').hidden=true;$('#mrun').disabled=true;$('#mres').textContent='';
+  $('#drop').style.display='none';$('#app').style.display='flex';tabs();render()}
+
+/* ---------- weighing ---------- */
+function parseNum(v){const m=String(v).trim().match(/^(.*?)(\d+)(\D*)$/);return m&&m[2].length<=15?{p:m[1],n:+m[2],w:m[2].length,s:m[3]}:null}
+function analyze(c){
+  const n=R.length,v=R.map(r=>r[c]),nb=v.filter(x=>!blank(x)),bl=n-nb.length;
+  if(!bl||!nb.length)return{bl,down:0,seq:0};
+  let seq=0;
+  if(nb.length>=3){
+    const ok=nb.map(parseNum).filter(Boolean),key=x=>x.p+'\u0001'+x.s,cnt={};
+    ok.forEach(x=>cnt[key(x)]=(cnt[key(x)]||0)+1);
+    const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
+    if(top){const g=ok.filter(x=>key(x)===top[0]),pairs=Math.max(1,g.length-1);let mono=0,step=0;
+      for(let i=1;i<g.length;i++){const d=g[i].n-g[i-1].n;if(d>=0)mono++;if(d>0&&d<=3)step++}
+      seq=.3*g.length/nb.length+.25*mono/pairs+.25*step/pairs+.2*new Set(g.map(x=>x.n)).size/g.length}}
+  let ch=0,viol=0,seen=new Set(),last=null;
+  for(const x of nb){const k=String(x).trim();if(last!==null&&k!==last){ch++;if(seen.has(k))viol++}seen.add(k);last=k}
+  const contig=ch?1-viol/ch:1,first=blank(v[0])?0:1;
+  let oth=0;R.forEach(r=>{if(blank(r[c])&&r.some((x,j)=>j!==c&&!blank(x)))oth++});
+  const down=(.3*first+.25*contig+.25*Math.min(1,3*bl/n)+.2*oth/bl)*(1-.6*seq);
+  return{bl,down,seq}}
+
+/* ---------- fills ---------- */
+function snap(){store();return{pay:cp(S.pay),inv:cp(S.inv),G:G.map(g=>({...g,ps:[...g.ps]}))}}
+function restore(s){S.pay=s.pay;S.inv=s.inv;G=s.G;idx();use(view==='inv'&&!S.inv?'pay':view);tabs()}
+function push(s){hist.push(s||snap());if(hist.length>30)hist.shift()}
+function fill(c,mode,val){
+  let k=0,mark=r=>{F.add(r+','+c);k++};
+  if(mode==='down'){let last='';R.forEach((row,r)=>{if(blank(row[c])){if(last!==''){row[c]=last;mark(r)}}else last=row[c]})}
+  else if(mode==='const'){R.forEach((row,r)=>{if(blank(row[c])){row[c]=val;mark(r)}})}
+  else if(mode==='seq'){
+    const used=new Set(R.map(r=>parseNum(r[c])).filter(Boolean).map(x=>x.n));let prev=null;
+    R.forEach((row,r)=>{if(!blank(row[c])){const p=parseNum(row[c]);if(p)prev=p}
+      else if(prev){let n=prev.n+1;while(used.has(n))n++;used.add(n);
+        row[c]=prev.p+String(n).padStart(prev.w,'0')+prev.s;prev={...prev,n};mark(r)}})}
+  return k}
+function act(c,mode){
+  let val='';if(mode==='const'){val=prompt('Fill blank cells in “'+H[c]+'” with:');if(val===null)return}
+  const s=snap();if(fill(c,mode,val))push(s);render()}
+function applyAll(){
+  const t=$('#th').value/100,s=snap();let any=0;
+  H.forEach((_,c)=>{const a=analyze(c),m=a.down>=a.seq?'down':'seq',sc=Math.max(a.down,a.seq);
+    if(a.bl&&sc>=t)any+=fill(c,m)});
+  if(any)push(s);render()}
+
+/* ---------- rendering ---------- */
+function ctl(){
+  const t=$('#th').value/100;
+  $('#ctl').innerHTML='<td class="rn"></td>'+H.map((_,c)=>{
+    const a=analyze(c);if(!a.bl)return'<td class="ctl">No blank cells</td>';
+    const chip=(m,l,sc)=>`<button class="chip${sc>=t?' s':''}" data-c="${c}" data-m="${m}" title="Fill the blanks using this rule">${l} ${Math.round(sc*100)}%</button>`;
+    return`<td class="ctl">${a.bl} blank<div class="chips">${chip('down','Fill down',a.down)}${chip('seq','Sequence',a.seq)}</div>
+      <select data-c="${c}"><option value="">Other fill…</option><option value="const">Fixed value…</option></select></td>`}).join('')}
+function render(){
+  const rows=R.slice(0,LIMIT);
+  $('#tbl').innerHTML='<thead><tr><th class="rn"></th>'+H.map((h,c)=>`<th><input data-h="${c}" value="${esc(h)}" aria-label="Header ${c+1}"></th>`).join('')+'</tr><tr id="ctl"></tr></thead><tbody>'+
+    rows.map((row,r)=>`<tr><td class="rn">${r+1}</td>`+row.map((v,c)=>`<td class="c${F.has(r+','+c)?' f':''}"${C.has(r+','+c)?` title="Invoice match ${Math.round(C.get(r+','+c)*100)}%"`:''} contenteditable="plaintext-only" data-r="${r}" data-c="${c}">${esc(v)}</td>`).join('')+'</tr>').join('')+'</tbody>';
+  ctl();status();markDups();
+  const h=$('#tbl thead tr').offsetHeight;$('#tbl').style.setProperty('--h1',h+'px')}
+function status(){
+  const nm=S.inv?(view==='pay'?'Payments · ':'Invoices · '):'';
+  $('#stat').textContent=nm+R.length+' rows · '+H.length+' columns · '+F.size+' cells filled'+(G.length?' · '+G.length+' linked new numbers':'')+(R.length>LIMIT?' · showing first '+LIMIT+' rows (all rows are exported)':'');
+  $('#undo').disabled=!hist.length;$('#save').disabled=$('#auto').disabled=$('#mbtn').disabled=false;
+  $('#save').textContent=S.inv?'Download both CSVs':'Download CSV'}
+function markDups(){
+  T.querySelectorAll('td.d').forEach(td=>{td.classList.remove('d');td.removeAttribute('title')});
+  if(view!=='inv'||!G.length)return;
+  const cnt={};
+  G.forEach(g=>{if(g.j>=0&&!cnt[g.ic]){const m=new Map();R.forEach(r=>{const v=String(r[g.ic]??'').trim();if(v)m.set(v,(m.get(v)||0)+1)});cnt[g.ic]=m}});
+  G.forEach(g=>{if(g.j<0)return;const v=String(R[g.j][g.ic]??'').trim();
+    if(v&&cnt[g.ic].get(v)>1){const td=T.querySelector(`td[data-r="${g.j}"][data-c="${g.ic}"]`);if(td){td.classList.add('d');td.title='Duplicate invoice number'}}})}
+/* an edit to a linked cell is copied to every cell it is linked with, in both files */
+function mirror(g,val,sv,sr){
+  const upd=(v,r,c)=>{if(v===sv&&r===sr)return;S[v].R[r][c]=val;S[v].F.add(r+','+c);S[v].C.delete(r+','+c);
+    if(v===view){const td=T.querySelector(`td[data-r="${r}"][data-c="${c}"]`);if(td){td.textContent=val;td.classList.add('f')}}};
+  g.ps.forEach(i=>upd('pay',i,g.pc));if(g.j>=0)upd('inv',g.j,g.ic)}
+
+/* ---------- events ---------- */
+const T=$('#tbl');
+T.addEventListener('focusin',e=>{if(e.target.matches('[data-h],[data-r]')){pre=snap();pushed=false}});
+T.addEventListener('input',e=>{const t=e.target;if(!pre)return;
+  if(!pushed){push(pre);pushed=true;$('#undo').disabled=false}
+  if(t.dataset.h!==undefined)H[+t.dataset.h]=t.value;
+  else if(t.dataset.r!==undefined){const k=t.dataset.r+','+t.dataset.c;R[+t.dataset.r][+t.dataset.c]=t.textContent;F.delete(k);C.delete(k);t.classList.remove('f');
+    const g=(view==='pay'?GP:GI).get(k);if(g)mirror(g,t.textContent,view,+t.dataset.r)}});
+T.addEventListener('focusout',e=>{if(e.target.matches('[data-r]')){ctl();status();markDups()}});
+T.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('[data-r]')){e.preventDefault();e.target.blur()}});
+T.addEventListener('click',e=>{const b=e.target.closest('.chip');if(b)act(+b.dataset.c,b.dataset.m)});
+T.addEventListener('change',e=>{const s=e.target;if(s.matches('select')&&s.value)act(+s.dataset.c,s.value)});
+$('#undo').onclick=()=>{const s=hist.pop();if(s){restore(s);render()}};
+$('#vpay').onclick=()=>sw('pay');$('#vinv').onclick=()=>sw('inv');
+$('#dl').onchange=e=>{if(S[view])S[view].d=e.target.value};
+$('#auto').onclick=applyAll;
+$('#th').oninput=e=>{$('#thv').textContent=e.target.value+'%';if(H.length)ctl()};
+const pick=()=>$('#file').click();$('#open').onclick=$('#open2').onclick=pick;
+async function take(f){if(f)load(await f.text(),f.name)}
+$('#file').onchange=e=>{take(e.target.files[0]);e.target.value=''};
+addEventListener('dragover',e=>{e.preventDefault();$('#drop').classList.add('over')});
+addEventListener('dragleave',()=>$('#drop').classList.remove('over'));
+addEventListener('drop',e=>{e.preventDefault();$('#drop').classList.remove('over');take(e.dataTransfer.files[0])});
+
+/* ---------- invoice matching ---------- */
+const STOP=new Set('inc llc ltd corp co company the and of'.split(' '));
+const toks=s=>String(s??'').toLowerCase().replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter(w=>w&&!STOP.has(w));
+function nameSim(a,b){
+  if(!a.length||!b.length)return null;
+  const A=new Set(a),B=new Set(b);let i=0;A.forEach(x=>B.has(x)&&i++);
+  const j=i/(A.size+B.size-i),sa=a.join(' '),sb=b.join(' ');
+  return sa===sb?1:(sa.includes(sb)||sb.includes(sa))?Math.max(.9,j):j}
+function num(v){
+  let s=String(v??'').trim();if(!s)return null;
+  const neg=/^\(.*\)$/.test(s)||s[0]==='-';s=s.replace(/[^0-9.,]/g,'');
+  s=/,\d{2}$/.test(s)&&!s.includes('.')?s.replace(',','.'):s.replace(/,/g,'');
+  const x=parseFloat(s);return isNaN(x)?null:neg?-x:x}
+function day(v){
+  const s=String(v??'').trim();if(!s)return null;let m,y,mo,d;
+  if(m=s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/)){y=+m[1];mo=+m[2];d=+m[3]}
+  else if(m=s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/)){const a=+m[1],b=+m[2];y=+m[3];if(y<100)y+=2000;if(a>12){d=a;mo=b}else{mo=a;d=b}}
+  else{const t=Date.parse(s);return isNaN(t)?null:Math.floor(t/864e5)}
+  return Math.floor(Date.UTC(y,mo-1,d)/864e5)}
+const amtSc=(a,b)=>{const d=Math.abs(a-b);return d<.005?1:d<=Math.abs(b)*.01?.4:0};
+const dateSc=(p,i)=>{const d=p-i;return d===0?1:d>0?Math.max(0,1-d/90):Math.max(0,1+d/10)};
+const gs=(hs,re)=>{const i=hs.findIndex(h=>re.test(h));return i<0?'':String(i)};
+function mapUI(){
+  const PH=S.pay.H,IH=S.inv.H;
+  const set=(id,hs,l,re)=>{const s=$(id);s.innerHTML='<option value="">'+l+'</option>'+hs.map((h,i)=>`<option value="${i}">${esc(h)}</option>`).join('');s.value=gs(hs,re)};
+  const N=/name|company|customer|client|payer|from/i,D=/date/i,A=/amount|total|sum|payment|paid|balance/i;
+  set('#mpn',PH,'(none)',N);set('#mpd',PH,'(none)',D);set('#mpa',PH,'(choose)',A);
+  set('#min',IH,'(none)',N);set('#mid',IH,'(none)',D);set('#mia',IH,'(choose)',A);set('#miv',IH,'(choose)',/inv.*(no|num|#)|invoice|number|^no\b/i);
+  $('#mmap').hidden=false;$('#mrun').disabled=false;genDefaults()}
+/* suggest prefix / start / digits by continuing the numbering already used in the invoices file */
+function genDefaults(){
+  const v=$('#miv').value;if(v===''||!S.inv)return;
+  const ok=S.inv.R.map(r=>parseNum(r[+v])).filter(x=>x&&x.s===''),cnt={};
+  let p='INV-',n=0,w=4;
+  if(ok.length){ok.forEach(x=>cnt[x.p]=(cnt[x.p]||0)+1);p=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0][0];
+    const g=ok.filter(x=>x.p===p),ws=new Set(g.map(x=>x.w));n=g.reduce((m,x)=>Math.max(m,x.n),0);w=ws.size===1?[...ws][0]:1}
+  $('#mgp').value=p;$('#mgs').value=n+1;$('#mgw').value=w;genEx()}
+function genEx(){$('#mgex').textContent='e.g. '+$('#mgp').value+String(Math.max(0,parseInt($('#mgs').value)||0)).padStart(Math.max(1,parseInt($('#mgw').value)||1),'0')}
+function runMatch(){
+  store();
+  const PD=S.pay,ID=S.inv,col=id=>$(id).value===''?-1:+$(id).value;
+  const pn=col('#mpn'),pd=col('#mpd'),pa=col('#mpa'),iN=col('#min'),iD=col('#mid'),ia=col('#mia'),iv=col('#miv');
+  if(pa<0||ia<0||iv<0){$('#mres').textContent='Choose the amount column on both sides and the invoice number column.';return}
+  const wa=+$('#mwa').value,wn=+$('#mwn').value,wd=+$('#mwd').value,th=$('#mth').value/100,multi=$('#mmulti').checked,gen=$('#mgen').checked,left=gen&&$('#mleft').checked;
+  const P=PD.R.map(r=>({n:pn<0?[]:toks(r[pn]),d:pd<0?null:day(r[pd]),a:num(r[pa])}));
+  const I=ID.R.map(r=>({n:iN<0?[]:toks(r[iN]),d:iD<0?null:day(r[iD]),a:num(r[ia]),v:r[iv]}));
+  const pairs=[];
+  P.forEach((p,i)=>{if(p.a==null)return;I.forEach((q,j)=>{
+    if(q.a==null||(blank(q.v)&&!gen))return;const as=amtSc(p.a,q.a);if(!as)return;
+    let s=wa*as,w=wa;const ns=nameSim(p.n,q.n);
+    if(ns!=null){s+=wn*ns;w+=wn}
+    if(p.d!=null&&q.d!=null){s+=wd*dateSc(p.d,q.d);w+=wd}
+    const sc=w?s/w:0;if(sc>=th)pairs.push([sc,i,j])})});
+  pairs.sort((x,y)=>y[0]-x[0]);
+  const best=new Map(),used=new Set();
+  for(const[sc,i,j]of pairs){if(best.has(i)||(!multi&&used.has(j)))continue;best.set(i,[sc,j]);used.add(j)}
+  const name=$('#mout').value.trim()||'Invoice Number',snapshot=snap();
+  let c=PD.H.indexOf(name);if(c<0){PD.H.push(name);PD.R.forEach(r=>r.push(''));c=PD.H.length-1}
+  /* unique numbers: never reuse anything already present in either file */
+  const taken=new Set(),add=v=>{if(!blank(v))taken.add(String(v).trim().toLowerCase())};
+  PD.R.forEach(r=>add(r[c]));ID.R.forEach(r=>add(r[iv]));
+  let nx=Math.max(0,parseInt($('#mgs').value)||0);const pf=$('#mgp').value,wd2=Math.min(12,Math.max(1,parseInt($('#mgw').value)||1));
+  const next=()=>{let x;do{x=pf+String(nx++).padStart(wd2,'0')}while(taken.has(x.toLowerCase()));taken.add(x.toLowerCase());return x};
+  let copied=0,made=0,extra=0;const need=new Map();
+  best.forEach(([sc,j],i)=>{
+    if(!blank(PD.R[i][c]))return;
+    if(!blank(I[j].v)){PD.R[i][c]=I[j].v;PD.F.add(i+','+c);PD.C.set(i+','+c,sc);copied++}
+    else{if(!need.has(j))need.set(j,[]);need.get(j).push([i,sc])}});
+  [...need.keys()].sort((a,b)=>a-b).forEach(j=>{
+    const v=next(),rows=need.get(j);
+    ID.R[j][iv]=v;ID.F.add(j+','+iv);
+    rows.forEach(([i,sc])=>{PD.R[i][c]=v;PD.F.add(i+','+c);PD.C.set(i+','+c,sc)});
+    G.push({pc:c,ic:iv,j,ps:rows.map(x=>x[0]).sort((a,b)=>a-b)});made++});
+  if(left){
+    ID.R.forEach((r,j)=>{if(blank(r[iv])){r[iv]=next();ID.F.add(j+','+iv);G.push({pc:c,ic:iv,j,ps:[]});extra++}});
+    PD.R.forEach((r,i)=>{if(blank(r[c])){r[c]=next();PD.F.add(i+','+c);G.push({pc:c,ic:iv,j:-1,ps:[i]});extra++}})}
+  idx();push(snapshot);use(view);render();tabs();
+  const pl=PD.R.filter(r=>blank(r[c])).length,il=ID.R.filter(r=>blank(r[iv])).length;
+  $('#mres').textContent=copied+' existing invoice numbers copied · '+made+' new numbers created in both files'+(extra?' · '+extra+' extra numbers for unmatched rows':'')+' · still blank: '+pl+' payments, '+il+' invoices'+(copied+made?'':'. Try lowering the minimum score.')}
+$('#mbtn').onclick=()=>{store();$('#mt').showModal();if(S.inv)mapUI()};
+$('#mclose').onclick=()=>$('#mt').close();
+$('#mpick').onclick=()=>$('#ifile').click();
+$('#ifile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+  const t=readTable(await f.text());if(!t)return;
+  store();S.inv={H:t.H,R:t.R,F:new Set(),C:new Map(),d:normD(t.d),name:f.name.replace(/\.[^.]+$/,'')};
+  G=[];idx();hist=[];pre=null;use(view);tabs();render();
+  $('#minfo').textContent=f.name+' · '+t.R.length+' invoices';$('#mres').textContent='';mapUI()};
+$('#miv').addEventListener('change',genDefaults);
+['#mgp','#mgs','#mgw'].forEach(x=>$(x).addEventListener('input',genEx));
+$('#mgen').addEventListener('change',()=>{const on=$('#mgen').checked;['#mgp','#mgs','#mgw','#mleft'].forEach(x=>$(x).disabled=!on)});
+$('#mrun').onclick=runMatch;
+$('#mt').addEventListener('input',e=>{if(e.target.dataset.v!==undefined)e.target.nextElementSibling.textContent=e.target.value});
+
+/* ---------- export: one new file per table, originals are never touched ---------- */
+function csvText(x){
+  const d=x.d,q=v=>{v=String(v??'');return/["\r\n]/.test(v)||v.includes(d)||/^\s|\s$/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  return [x.H,...x.R].map(r=>r.map(q).join(d)).join('\r\n')+'\r\n'}
+function dlFile(name,text){
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'}));a.download=name;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+$('#save').onclick=()=>{
+  store();const bom=$('#bom').checked?'\uFEFF':'',same=S.inv&&S.pay.name===S.inv.name;
+  [S.pay,S.inv].filter(Boolean).forEach((x,i)=>setTimeout(()=>dlFile(x.name+(same?(x===S.pay?'-payments':'-invoices'):'')+'-prepared.csv',bom+csvText(x)),i*500))};
+</script>
+</body>
+</html>

@@ -49,6 +49,12 @@ qt_add_executable(OSI-NewMainWindow
     DAO_Reports.h DAO_Reports.cpp
     salesbycustomer.h salesbycustomer.cpp salesbycustomer.ui
     arsummary.h arsummary.cpp arsummary.ui
+    columnmatcher.h columnmatcher.cpp
+    csvreader.h csvreader.cpp
+    entitymapper.h entitymapper.cpp
+    universalimportdialog.h universalimportdialog.cpp
+    clientimportmapper.h clientimportmapper.cpp
+    pagebar.h
 
 
 

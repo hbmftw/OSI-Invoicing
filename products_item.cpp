@@ -3,6 +3,7 @@
 #include "DatabaseManager.h"
 #include "DAO_Services.h"
 #include "additem.h"
+#include "pagebar.h"
 
 #include <QPushButton>
 #include <QAction>
@@ -13,6 +14,10 @@ Products_Item::Products_Item(DatabaseManager& dbManager, QWidget *parent)
     , m_dbManager(dbManager)
 {
     ui->setupUi(this);
+
+    // Paging bar under the table: 25 / 50 / 100 rows per page
+    m_pageBar = new PageBar([this]() { reload(); }, this);
+    ui->verticalLayout->addWidget(m_pageBar);
 
     ui->itemsTableWidget->setColumnCount(5);
     ui->itemsTableWidget->setHorizontalHeaderLabels({"Name", "Description", "Price", "Taxable", ""});
@@ -33,14 +38,29 @@ Products_Item::~Products_Item()
 }
 
 void Products_Item::refresh() {
-    on_ItemSearch_Field_textChanged(ui->ItemSearch_Field->text());
+    reload();
 }
 
 void Products_Item::on_ItemSearch_Field_textChanged(const QString &arg1)
 {
+    Q_UNUSED(arg1);
+    // A new search always starts on the first page
+    if (m_pageBar)
+        m_pageBar->resetPage();
+    reload();
+}
+
+void Products_Item::reload()
+{
+    if (!m_pageBar)
+        return;
+
     DAO_Services itemDao(m_dbManager);
-    QVector<Item> results = itemDao.searchServices(arg1);
-    populateItemsTable(results);
+    const QString term = ui->ItemSearch_Field->text();
+
+    // Total first: it can move the page back if the current one no longer exists
+    m_pageBar->setTotal(itemDao.countServices(term));
+    populateItemsTable(itemDao.searchServicesPage(term, m_pageBar->limit(), m_pageBar->offset()));
 }
 
 void Products_Item::populateItemsTable(const QVector<Item> &items) {

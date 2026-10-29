@@ -62,6 +62,77 @@ QVector<Client> DAO_Client::searchClients(const QString& searchTerm) const {
     return results;
 }
 
+int DAO_Client::countClients(const QString& searchTerm) const {
+    QSqlDatabase db = m_dbManager.database();
+    if (!db.isOpen()) {
+        qCritical() << "DAO_Client::countClients - Database connection is not open!";
+        return 0;
+    }
+
+    QSqlQuery query(db);
+    query.prepare(
+        "SELECT COUNT(*) FROM clients "
+        "WHERE first_name LIKE :term1 "
+        "   OR last_name LIKE :term2 "
+        "   OR business_name LIKE :term3;"
+        );
+    const QString pattern = "%" + searchTerm.trimmed() + "%";
+    query.bindValue(":term1", pattern);
+    query.bindValue(":term2", pattern);
+    query.bindValue(":term3", pattern);
+
+    if (!query.exec() || !query.next()) {
+        qCritical() << "DAO_Client::countClients - Error:" << query.lastError().text();
+        return 0;
+    }
+    return query.value(0).toInt();
+}
+
+QVector<Client> DAO_Client::searchClientsPage(const QString& searchTerm, int limit, int offset) const {
+    QVector<Client> results;
+
+    QSqlDatabase db = m_dbManager.database();
+    if (!db.isOpen()) {
+        qCritical() << "DAO_Client::searchClientsPage - Database connection is not open!";
+        return results;
+    }
+
+    QSqlQuery query(db);
+    query.prepare(
+        "SELECT client_id, first_name, last_name, business_name, email, phone_number, created_at "
+        "FROM clients "
+        "WHERE first_name LIKE :term1 "
+        "   OR last_name LIKE :term2 "
+        "   OR business_name LIKE :term3 "
+        "ORDER BY last_name ASC, first_name ASC, business_name ASC, client_id ASC "
+        "LIMIT :limit OFFSET :offset;"
+        );
+    const QString pattern = "%" + searchTerm.trimmed() + "%";
+    query.bindValue(":term1", pattern);
+    query.bindValue(":term2", pattern);
+    query.bindValue(":term3", pattern);
+    query.bindValue(":limit", limit);
+    query.bindValue(":offset", offset);
+
+    if (!query.exec()) {
+        qCritical() << "DAO_Client::searchClientsPage - Error:" << query.lastError().text();
+        return results;
+    }
+
+    while (query.next()) {
+        Client client;
+        client.id = query.value("client_id").toInt();
+        client.firstName = query.value("first_name").toString();
+        client.lastName = query.value("last_name").toString();
+        client.businessName = query.value("business_name").toString();
+        client.email = query.value("email").toString();
+        client.phoneNumber = query.value("phone_number").toString();
+        client.createdAt = query.value("created_at").toString();
+        results.append(client);
+    }
+    return results;
+}
+
 bool DAO_Client::insertClient(const Client& client) {
     QSqlDatabase db = m_dbManager.database();
     if (!db.isOpen()) {
@@ -69,7 +140,36 @@ bool DAO_Client::insertClient(const Client& client) {
         return false;
     }
 
-    db.transaction();
+    // Ensure first_name and last_name satisfy NOT NULL constraints
+    QString safeFirstName = client.firstName.trimmed();
+    QString safeLastName = client.lastName.trimmed();
+
+    if (safeFirstName.isEmpty() && safeLastName.isEmpty()) {
+        if (!client.businessName.isEmpty()) {
+            safeFirstName = client.businessName;
+            safeLastName = QStringLiteral("N/A");
+        } else {
+            safeFirstName = QStringLiteral("N/A");
+            safeLastName = QStringLiteral("N/A");
+        }
+    } else {
+        if (safeFirstName.isEmpty()) safeFirstName = QStringLiteral(" ");
+        if (safeLastName.isEmpty()) safeLastName = QStringLiteral(" ");
+    }
+
+    // SAVEPOINT works standalone (it opens a transaction, RELEASE commits it)
+    // and nested inside a caller's transaction (e.g. the import dialog), where
+    // a plain BEGIN/COMMIT would fail and commit the caller's work early.
+    QSqlQuery txn(db);
+    if (!txn.exec("SAVEPOINT insert_client")) {
+        qCritical() << "ClientDao::insertClient - SAVEPOINT failed:" << txn.lastError().text();
+        return false;
+    }
+    auto rollbackAll = [&db]() {
+        QSqlQuery r(db);
+        r.exec("ROLLBACK TO insert_client");
+        r.exec("RELEASE insert_client");
+    };
 
     // Insert the core client record
     QSqlQuery query(db);
@@ -86,14 +186,14 @@ bool DAO_Client::insertClient(const Client& client) {
 
     if (!query.exec()) {
         qCritical() << "Error inserting client:" << query.lastError().text();
-        db.rollback();
+        rollbackAll();
         return false;
     }
 
     const QVariant clientIdVariant = query.lastInsertId();
     if (!clientIdVariant.isValid()) {
         qCritical() << "ClientDao::insertClient - Failed to retrieve inserted client_id";
-        db.rollback();
+        rollbackAll();
         return false;
     }
     const int clientId = clientIdVariant.toInt();
@@ -119,14 +219,14 @@ bool DAO_Client::insertClient(const Client& client) {
 
         if (!addressQuery.exec()) {
             qCritical() << "Error inserting address:" << addressQuery.lastError().text();
-            db.rollback();
+            rollbackAll();
             return false;
         }
     }
 
-    if (!db.commit()) {
-        qCritical() << "ClientDao::insertClient - Failed to commit transaction:" << db.lastError().text();
-        db.rollback();
+    if (!txn.exec("RELEASE insert_client")) {
+        qCritical() << "ClientDao::insertClient - RELEASE failed:" << txn.lastError().text();
+        rollbackAll();
         return false;
     }
 
@@ -266,4 +366,3 @@ bool DAO_Client::updateClient(const Client& client) {
 
     return true;
 }
-

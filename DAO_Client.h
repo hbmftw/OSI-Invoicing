@@ -17,6 +17,12 @@ public:
     // Search clients across first_name, last_name, or business_name
     QVector<Client> searchClients(const QString& searchTerm) const;
 
+    // Paged search for the Customers list. Same matching and ordering as
+    // searchClients(), plus a tie-break on client_id so pages never overlap.
+    // countClients() gives the total number of matches for the same term.
+    int countClients(const QString& searchTerm) const;
+    QVector<Client> searchClientsPage(const QString& searchTerm, int limit, int offset) const;
+
     // Insert a new client, address
     bool insertClient(const Client& client);
 

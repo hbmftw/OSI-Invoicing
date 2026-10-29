@@ -3,6 +3,7 @@
 #include "DatabaseManager.h"
 #include "DAO_Payment.h"
 #include "addPayment.h"
+#include "pagebar.h"
 
 #include <QMessageBox>
 #include <QPushButton>
@@ -14,6 +15,10 @@ Payment_Window::Payment_Window(DatabaseManager& dbManager, QWidget *parent)
     ,m_dbManager(dbManager)
 {
     ui->setupUi(this);
+
+    // Paging bar under the table: 25 / 50 / 100 rows per page
+    m_pageBar = new PageBar([this]() { refreshPaymentsTable(); }, this);
+    ui->verticalLayout->addWidget(m_pageBar);
 
     ui->paymentsTableWidget->setColumnCount(7);
     ui->paymentsTableWidget->setHorizontalHeaderLabels({"Date", "Invoice #", "Client", "Method", "Amount", "Notes", ""});
@@ -40,23 +45,31 @@ void Payment_Window::refresh() {
 void Payment_Window::on_PaymentSearch_Field_textChanged(const QString &arg1)
 {
     Q_UNUSED(arg1);
+    if (m_pageBar)
+        m_pageBar->resetPage();
     refreshPaymentsTable();
 }
 
 void Payment_Window::on_MethodFilter_ComboBox_currentIndexChanged(int index)
 {
     Q_UNUSED(index);
+    if (m_pageBar)
+        m_pageBar->resetPage();
     refreshPaymentsTable();
 }
 
 void Payment_Window::refreshPaymentsTable()
 {
+    if (!m_pageBar)
+        return;
+
     DAO_Payment paymentDao(m_dbManager);
     const QString searchText = ui->PaymentSearch_Field->text();
     const QString methodFilter = ui->MethodFilter_ComboBox->currentText();
 
-    QVector<PaymentListItem> results = paymentDao.searchPayments(searchText, methodFilter);
-    populatePaymentsTable(results);
+    // Total first: it can move the page back if the current one no longer exists
+    m_pageBar->setTotal(paymentDao.countPayments(searchText, methodFilter));
+    populatePaymentsTable(paymentDao.searchPaymentsPage(searchText, methodFilter, m_pageBar->limit(), m_pageBar->offset()));
 }
 
 void Payment_Window::populatePaymentsTable(const QVector<PaymentListItem> &payments)

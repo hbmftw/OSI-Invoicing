@@ -27,6 +27,12 @@ public:
     // existing rows untouched if anything fails.
     bool replaceItemsForInvoice(int invoiceId, const QVector<InvoiceItem>& items);
 
+    // Inserts items for an invoice that has none yet (used by the CSV import).
+    // Unlike replaceItemsForInvoice() this uses a SAVEPOINT instead of
+    // BEGIN/COMMIT, so it is safe to call while the caller already has a
+    // transaction open. All items are inserted or none are.
+    bool insertItemsForInvoice(int invoiceId, const QVector<InvoiceItem>& items);
+
     // Tax-inclusive total for an invoice, in cents: sum of line_total plus
     // each line's tax (looked up by tax_id against tax_table's current
     // rate, regardless of whether that rate is still active -- a rate

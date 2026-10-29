@@ -38,6 +38,12 @@ public:
     QVector<PaymentListItem> searchPayments(const QString& filterText, const QString& methodFilter = QString()) const;
     bool deletePayment(int paymentId);
 
+    // Paged version of searchPayments() for the Payments list: same matching
+    // and ordering, plus the total number of matches for the same filters.
+    int countPayments(const QString& filterText, const QString& methodFilter = QString()) const;
+    QVector<PaymentListItem> searchPaymentsPage(const QString& filterText, const QString& methodFilter,
+                                                int limit, int offset) const;
+
 private:
     DatabaseManager& m_dbManager;
 };

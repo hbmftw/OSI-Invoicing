@@ -7,6 +7,7 @@
 
 // Forward Declaration
 class DatabaseManager;
+class PageBar;
 
 namespace Ui {
 class Contacts_Customer;
@@ -37,8 +38,12 @@ private:
 
     void openCustomerCard(int clientID);
 
+    // Re-queries the current page for the current search text (keeps the page)
+    void reload();
+
     Ui::Contacts_Customer *ui;
     DatabaseManager& m_dbManager; // Store reference to manager
+    PageBar* m_pageBar{nullptr};  // "Rows per page" + Prev/Next bar under the table
 
 };
 

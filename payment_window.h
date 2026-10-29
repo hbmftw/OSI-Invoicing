@@ -5,6 +5,8 @@
 #include <QVector>
 #include "DAO_Payment.h"
 
+class PageBar;
+
 namespace Ui {
 class Payment_Window;
 }
@@ -32,6 +34,7 @@ private:
 
     Ui::Payment_Window *ui;
     DatabaseManager& m_dbManager;
+    PageBar* m_pageBar{nullptr};  // "Rows per page" + Prev/Next bar under the table
 };
 
 #endif // PAYMENT_WINDOW_H

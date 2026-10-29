@@ -8,6 +8,7 @@
 #include "addInvoice.h" //Changed from addinvoicedialog.h
 #include "invoicecard.h"
 #include "addPayment.h" //Changed from recordpaymentdialog.h
+#include "pagebar.h"
 
 #include <QMessageBox>
 #include <QPushButton>
@@ -18,6 +19,10 @@ Invoice_Window::Invoice_Window(DatabaseManager& dbManager, QWidget *parent) // A
     , m_dbManager(dbManager) // Bind reference in initializer list
 {
     ui->setupUi(this);
+
+    // Paging bar under the table: 25 / 50 / 100 rows per page
+    m_pageBar = new PageBar([this]() { refreshInvoicesTable(); }, this);
+    ui->verticalLayout->addWidget(m_pageBar);
 
     // Set up table headers (also defined in the .ui file; kept here in case columns change at runtime)
     ui->invoicesTableWidget->setColumnCount(9);
@@ -48,46 +53,36 @@ void Invoice_Window::refresh() { refreshInvoicesTable();}
 void Invoice_Window::on_InvoiceSearch_Field_textChanged(const QString &arg1)
 {
     Q_UNUSED(arg1);
+    if (m_pageBar)
+        m_pageBar->resetPage();
     refreshInvoicesTable();
 }
 
 void Invoice_Window::on_StatusFilter_ComboBox_currentIndexChanged(int index)
 {
     Q_UNUSED(index);
+    if (m_pageBar)
+        m_pageBar->resetPage();
     refreshInvoicesTable();
 }
 
 void Invoice_Window::refreshInvoicesTable()
 {
-    DAO_Invoice Dao_Invoice(m_dbManager);
-    QVector<InvoiceListItem> results = Dao_Invoice.searchInvoices(ui->InvoiceSearch_Field->text());
+    if (!m_pageBar)
+        return;
+
+    DAO_Invoice invoiceDao(m_dbManager);
+    const QString term = ui->InvoiceSearch_Field->text();
 
     // Paid/Due filtering is based on actual recorded payments -- the same
     // computation the Payment column uses -- rather than the manually-set
-    // Status field. An invoice can be fully paid while Status still says
-    // "Sent" (or vice versa), so filtering by Status alone showed/hid the
-    // wrong rows relative to what the Payment column displays.
+    // Status field. It is done in SQL (index 0 = All, 1 = Paid, 2 = Due) so
+    // the total and each page respect the filter.
     const int filterIndex = ui->StatusFilter_ComboBox->currentIndex();
-    if (filterIndex != 0) { // 0 = "All" -- no filtering needed
-        DAO_Items itemDao(m_dbManager);
-        DAO_Payment paymentDao(m_dbManager);
 
-        QVector<InvoiceListItem> filtered;
-        for (const InvoiceListItem &invoice : results) {
-            const int totalCents = itemDao.getInvoiceTotalCents(invoice.id);
-            const int paidCents = paymentDao.getTotalPaidForInvoice(invoice.id);
-            const bool isPaid = totalCents > 0 && paidCents >= totalCents;
-
-            if (filterIndex == 1 && isPaid) {        // "Paid"
-                filtered.append(invoice);
-            } else if (filterIndex == 2 && !isPaid) { // "Due" -- Partial or Unpaid
-                filtered.append(invoice);
-            }
-        }
-        results = filtered;
-    }
-
-    populateInvoicesTable(results);
+    // Total first: it can move the page back if the current one no longer exists
+    m_pageBar->setTotal(invoiceDao.countInvoices(term, filterIndex));
+    populateInvoicesTable(invoiceDao.searchInvoicesPage(term, filterIndex, m_pageBar->limit(), m_pageBar->offset()));
 }
 
 void Invoice_Window::populateInvoicesTable(const QVector<InvoiceListItem> &invoices) {

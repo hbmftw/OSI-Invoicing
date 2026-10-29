@@ -98,6 +98,55 @@ bool DAO_Items::replaceItemsForInvoice(int invoiceId, const QVector<InvoiceItem>
     return true;
 }
 
+bool DAO_Items::insertItemsForInvoice(int invoiceId, const QVector<InvoiceItem> &items) {
+    QSqlDatabase db = m_dbManager.database();
+    if (!db.isOpen()) {
+        qCritical() << "DAO_Items::insertItemsForInvoice - Database connection is not open!";
+        return false;
+    }
+
+    QSqlQuery txn(db);
+    if (!txn.exec("SAVEPOINT insert_invoice_items")) {
+        qCritical() << "DAO_Items::insertItemsForInvoice - SAVEPOINT failed:" << txn.lastError().text();
+        return false;
+    }
+    auto rollbackAll = [&db]() {
+        QSqlQuery r(db);
+        r.exec("ROLLBACK TO insert_invoice_items");
+        r.exec("RELEASE insert_invoice_items");
+    };
+
+    QSqlQuery insertQuery(db);
+    insertQuery.prepare(
+        "INSERT INTO invoice_items (invoice_id, service_id, tax_id, description, quantity, snapshot_unit_price) "
+        "VALUES (:invoice_id, :service_id, :tax_id, :description, :quantity, :snapshot_unit_price);"
+        );
+
+    for (const InvoiceItem &item : items) {
+        insertQuery.bindValue(":invoice_id", invoiceId);
+        // Same NULL handling as replaceItemsForInvoice(): 0 means "not set".
+        insertQuery.bindValue(":service_id", item.serviceId == 0 ? QVariant(QMetaType(QMetaType::Int)) : QVariant(item.serviceId));
+        insertQuery.bindValue(":tax_id", item.taxId == 0 ? QVariant(QMetaType(QMetaType::Int)) : QVariant(item.taxId));
+        insertQuery.bindValue(":description", item.description);
+        insertQuery.bindValue(":quantity", item.quantity);
+        insertQuery.bindValue(":snapshot_unit_price", item.snapshotUnitPriceCents);
+
+        if (!insertQuery.exec()) {
+            qCritical() << "DAO_Items::insertItemsForInvoice - Error inserting invoice item:" << insertQuery.lastError().text();
+            rollbackAll();
+            return false;
+        }
+    }
+
+    if (!txn.exec("RELEASE insert_invoice_items")) {
+        qCritical() << "DAO_Items::insertItemsForInvoice - RELEASE failed:" << txn.lastError().text();
+        rollbackAll();
+        return false;
+    }
+
+    return true;
+}
+
 int DAO_Items::getInvoiceTotalCents(int invoiceId) const {
     QSqlDatabase db = m_dbManager.database();
     if (!db.isOpen()) {

@@ -45,6 +45,16 @@ public:
     // "Due" since a voided invoice was cancelled, not outstanding.
     QVector<InvoiceListItem> searchInvoices(const QString& searchTerm, const QString& statusFilter = QString()) const;
 
+    // Paged search for the Invoices list. Searches the same fields as
+    // searchInvoices(), but the Paid/Due filter is decided here in SQL from
+    // the real line items and payments (the same totals the Amount and
+    // Payment columns show), so counts and pages stay correct.
+    // paymentFilter: 0 = all, 1 = fully paid, 2 = not fully paid.
+    // Newest first, with invoice_id as a tie-break so pages never overlap.
+    int countInvoices(const QString& searchTerm, int paymentFilter) const;
+    QVector<InvoiceListItem> searchInvoicesPage(const QString& searchTerm, int paymentFilter,
+                                                int limit, int offset) const;
+
     // Exact invoice_number lookup. Returns 0 if not found. Used by the
     // Receive Payment flow to resolve a typed invoice number to an id.
     int getInvoiceIdByNumber(const QString& invoiceNumber) const;

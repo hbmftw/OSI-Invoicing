@@ -225,6 +225,122 @@ QVector<InvoiceListItem> DAO_Invoice::searchInvoices(const QString& searchTerm, 
     return results;
 }
 
+namespace {
+
+// Per-invoice totals, computed exactly like DAO_Items::getInvoiceTotalCents()
+// (line totals plus each line's tax at the tax table's rate) and the sum of
+// recorded payments, so "fully paid" matches what the window displays.
+const QString kInvoiceTotalsCte = QStringLiteral(
+    "WITH inv_total AS ("
+    "  SELECT ii.invoice_id AS invoice_id, "
+    "         SUM(ii.line_total + CASE WHEN tt.tax_rate IS NOT NULL "
+    "             THEN CAST(ROUND(ii.line_total * tt.tax_rate / 100.0) AS INTEGER) "
+    "             ELSE 0 END) AS total_cents "
+    "  FROM invoice_items ii "
+    "  LEFT JOIN tax_table tt ON tt.tax_id = ii.tax_id "
+    "  GROUP BY ii.invoice_id), "
+    "inv_paid AS ("
+    "  SELECT invoice_id, SUM(amount) AS paid_cents FROM payments GROUP BY invoice_id) ");
+
+QString invoicePageFromWhere(int paymentFilter) {
+    QString sql =
+        "FROM invoices i "
+        "LEFT JOIN clients c ON c.client_id = i.client_id "
+        "LEFT JOIN inv_total t ON t.invoice_id = i.invoice_id "
+        "LEFT JOIN inv_paid p ON p.invoice_id = i.invoice_id "
+        "WHERE (i.invoice_number LIKE :term1 "
+        "   OR c.first_name LIKE :term2 "
+        "   OR c.last_name LIKE :term3 "
+        "   OR c.business_name LIKE :term4) ";
+
+    const QString paid =
+        "(COALESCE(t.total_cents, 0) > 0 AND COALESCE(p.paid_cents, 0) >= COALESCE(t.total_cents, 0))";
+    if (paymentFilter == 1) {
+        sql += "AND " + paid + " ";
+    } else if (paymentFilter == 2) {
+        sql += "AND NOT " + paid + " ";
+    }
+    return sql;
+}
+
+} // namespace
+
+int DAO_Invoice::countInvoices(const QString& searchTerm, int paymentFilter) const {
+    QSqlDatabase db = m_dbManager.database();
+    if (!db.isOpen()) {
+        qCritical() << "DAO_Invoice::countInvoices - Database connection is not open!";
+        return 0;
+    }
+
+    QSqlQuery query(db);
+    query.prepare(kInvoiceTotalsCte + "SELECT COUNT(*) " + invoicePageFromWhere(paymentFilter) + ";");
+    const QString pattern = "%" + searchTerm.trimmed() + "%";
+    query.bindValue(":term1", pattern);
+    query.bindValue(":term2", pattern);
+    query.bindValue(":term3", pattern);
+    query.bindValue(":term4", pattern);
+
+    if (!query.exec() || !query.next()) {
+        qCritical() << "DAO_Invoice::countInvoices - Error:" << query.lastError().text();
+        return 0;
+    }
+    return query.value(0).toInt();
+}
+
+QVector<InvoiceListItem> DAO_Invoice::searchInvoicesPage(const QString& searchTerm, int paymentFilter,
+                                                         int limit, int offset) const {
+    QVector<InvoiceListItem> results;
+
+    QSqlDatabase db = m_dbManager.database();
+    if (!db.isOpen()) {
+        qCritical() << "DAO_Invoice::searchInvoicesPage - Database connection is not open!";
+        return results;
+    }
+
+    QSqlQuery query(db);
+    query.prepare(
+        kInvoiceTotalsCte +
+        "SELECT i.invoice_id, i.invoice_number, i.issue_date, i.due_date, i.status, "
+        "       c.first_name, c.last_name, c.business_name " +
+        invoicePageFromWhere(paymentFilter) +
+        "ORDER BY i.issue_date DESC, i.invoice_id DESC "
+        "LIMIT :limit OFFSET :offset;"
+        );
+    const QString pattern = "%" + searchTerm.trimmed() + "%";
+    query.bindValue(":term1", pattern);
+    query.bindValue(":term2", pattern);
+    query.bindValue(":term3", pattern);
+    query.bindValue(":term4", pattern);
+    query.bindValue(":limit", limit);
+    query.bindValue(":offset", offset);
+
+    if (!query.exec()) {
+        qCritical() << "DAO_Invoice::searchInvoicesPage - Error:" << query.lastError().text();
+        return results;
+    }
+
+    while (query.next()) {
+        InvoiceListItem item;
+        item.id = query.value("invoice_id").toInt();
+        item.invoiceNumber = query.value("invoice_number").toString();
+        item.issueDate = query.value("issue_date").toString();
+        item.dueDate = query.value("due_date").toString();
+        item.status = query.value("status").toString();
+
+        QString clientDisplayName = QString("%1 %2")
+                                        .arg(query.value("first_name").toString(), query.value("last_name").toString())
+                                        .trimmed();
+        const QString businessName = query.value("business_name").toString();
+        if (!businessName.isEmpty()) {
+            clientDisplayName += QString(" (%1)").arg(businessName);
+        }
+        item.clientDisplayName = clientDisplayName;
+
+        results.append(item);
+    }
+    return results;
+}
+
 int DAO_Invoice::getInvoiceIdByNumber(const QString &invoiceNumber) const {
     QSqlDatabase db = m_dbManager.database();
     if (!db.isOpen()) {
